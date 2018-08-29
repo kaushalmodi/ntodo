@@ -68,15 +68,22 @@ proc projectsGet(): string =
   ## https://developer.todoist.com/rest/v8/#get-all-projects
   let
     jsonObj = getApiUrl("projects").requestGet()
+  var
+    idx = 0
   result = "Projects:\n\n"
   for proj in jsonObj:
     # https://developer.todoist.com/rest/v8/#projects
     # id, name, comment_count, order, indent
     let
+      order = proj["order"].getInt
       indent = " ".repeat(proj["indent"].getInt)
       id = proj["id"].getInt
       name = proj["name"].getStr
+    # echo fmt"order ({$order.type}) = {order}"
+    # echo fmt"idx ({$idx.type}) = {idx}"
+    doAssert idx == order
     result = result & fmt"{indent}{name} ({id})" & "\n"
+    idx += 1
 
 proc projectsCreate(name: string): string =
   ## Create a new project named NAME.

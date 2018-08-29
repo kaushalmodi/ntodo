@@ -1,6 +1,15 @@
 #+title: Nim wrapper for Todoist Rest/Sync API
 #+author: Kaushal Modi
 
+-----
+
+*This project is in a really pre-alpha stage.*
+
+Suggestions for better API/Nim coding practice are welcome!
+
+-----
+
+
 * Token
 *Getting your token is necessary for ~ntodo~ to work.*
 
