@@ -12,6 +12,7 @@ type
 
 var
   client: Option[HttpClient]
+  jsonObj: JsonNode
 
 proc getToken(): string =
   ## Get Todoist API token
@@ -66,8 +67,7 @@ proc requestPost(url, data: string): JsonNode =
 proc projectsGet(): string =
   ## Get projects.
   ## https://developer.todoist.com/rest/v8/#get-all-projects
-  let
-    jsonObj = getApiUrl("projects").requestGet()
+  jsonObj = getApiUrl("projects").requestGet()
   var
     idx = 0
   result = "Projects:\n\n"
@@ -92,7 +92,7 @@ proc projectsCreate(name: string): string =
     dataJson = %*{
       "name": name
       }
-    jsonObj = getApiUrl("projects").requestPost($dataJson)
+  jsonObj = getApiUrl("projects").requestPost($dataJson)
   # https://developer.todoist.com/rest/v8/#projects
   # id, name, comment_count, order, indent
   let
