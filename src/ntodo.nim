@@ -1,11 +1,14 @@
 # Todoist API REST v8
 # http://doist.github.io/todoist-api/rest/v8
 
-import os, options, httpclient, json, strutils, strformat, typetraits
+import os, options, httpclient, json, strutils, strformat, typetraits, random
 
 const
   tokenFileName = ".todoist-token"
   apiBaseUrl = "https://beta.todoist.com/API/v8"
+
+type
+  UserError = object of Exception
 
 var
   client: Option[HttpClient]
@@ -13,6 +16,20 @@ var
 proc getToken(): string =
   ## Get Todoist API token
   return tokenFileName.readFile().strip()
+
+proc getUuid(): string =
+  ## Generate a 36-digit UUID string like ``uuidgen`` in Unix.
+  ## Example: e0e7df1f-5bd4-4196-a0a2-26cd6a007c6c
+  #                        1    1    2
+  #           0       8    3    8    3
+  result = ""
+  for i in 0 .. 35:
+    if i in {8, 13, 18, 23}:
+      result = result & "-"
+    else:
+      randomize()
+      let r = rand(15)
+      result = result & fmt"{r:#x}"[2 .. 2]
 
 proc getClient(): HttpClient =
   ## Create a new http client if one doesn't already exist.
@@ -26,21 +43,34 @@ proc getApiUrl(cmd: string): string =
   ## Get the full API URL for a command.
   return apiBaseUrl & "/" & cmd
 
-proc getJson(url: string): JsonNode =
-  ## Get JSON object from URL.
+proc requestGet(url: string): JsonNode =
+  ## Get JSON object returned from a GET request to URL.
   try:
     return getClient().getContent(url).parseJson()
   except:
     echo "Error: Unable to get contents from " & url
     return "[]".parseJson()
 
-proc getProjects(): string =
-  ## Get Todoist projects.
+proc requestPost(url, data: string): JsonNode =
+  ## Get JSON object returned from a POST request to URL.
+  try:
+    var c = getClient()
+    c.headers = newHttpHeaders({ "Content-Type": "application/json",
+                                 "X-Request-Id": getUuid(),
+                                 "Authorization": "Bearer " & getToken() })
+    return c.request(url, httpMethod = HttpPost, body = data).body.parseJson()
+  except:
+    echo "Error: Unable to get contents from " & url
+    return "[]".parseJson()
+
+proc projectsGet(): string =
+  ## Get projects.
+  ## https://developer.todoist.com/rest/v8/#get-all-projects
   let
-    jsonObj = getApiUrl("projects").getJson()
+    jsonObj = getApiUrl("projects").requestGet()
   result = "Projects:\n\n"
   for proj in jsonObj:
-    # https://developer.todoist.com/rest/v8/#get-a-project
+    # https://developer.todoist.com/rest/v8/#projects
     # id, name, comment_count, order, indent
     let
       indent = " ".repeat(proj["indent"].getInt)
@@ -48,26 +78,41 @@ proc getProjects(): string =
       name = proj["name"].getStr
     result = result & fmt"{indent}{name} ({id})" & "\n"
 
-proc doStuff(user, project: string, action: char) =
+proc projectsCreate(name: string): string =
+  ## Create a new project named NAME.
+  ## https://developer.todoist.com/rest/v8/#create-a-new-project
+  let
+    dataJson = %*{
+      "name": name
+      }
+    jsonObj = getApiUrl("projects").requestPost($dataJson)
+  # https://developer.todoist.com/rest/v8/#projects
+  # id, name, comment_count, order, indent
+  let
+    id = jsonObj["id"].getInt
+    name = jsonObj["name"].getStr
+  result = fmt"New project created: {name} ({id})"
+
+proc doStuff(action, data: string) =
   ## Doer proc.
   var ret: string
   ret = case action
-        of 'p':
-          getProjects()
-#       of 'd':
-#         getDownloads(user, project)
-  #       of 't':
-  #         getLatestTag(user, project)
+        of "plist":
+          projectsGet()
+        of "pcreate":
+          if data == "":
+            raise newException(UserError, "New project name needs to be provided using the '-d' switch.")
+          projectsCreate(data)
         else:
-          getProjects()
+          projectsGet()
   echo ret
 
-proc main*(user = "kaushalmodi", project: string, action: char = 'p') =
+proc main*(action: string = "plist", data: string = "") =
   ## Main proc.
   try:
-    doStuff(user, project, action)
+    doStuff(action, data)
   except:
-    echo "Error happened: " & getCurrentExceptionMsg()
+    echo "  [ERROR] " & getCurrentExceptionMsg() & "\n"
 
 when isMainModule:
   import cligen
