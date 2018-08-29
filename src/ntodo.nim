@@ -64,7 +64,7 @@ proc requestPost(url, data: string): JsonNode =
     echo "Error: Unable to get contents from " & url
     return "[]".parseJson()
 
-proc projectsGet(): string =
+proc projectGetAll(): string =
   ## Get projects.
   ## https://developer.todoist.com/rest/v8/#get-all-projects
   jsonObj = getApiUrl("projects").requestGet()
@@ -85,7 +85,7 @@ proc projectsGet(): string =
     result = result & fmt"{indent}{name} ({id})" & "\n"
     idx += 1
 
-proc projectsCreate(name: string): string =
+proc projectCreate(name: string): string =
   ## Create a new project named NAME.
   ## https://developer.todoist.com/rest/v8/#create-a-new-project
   let
@@ -105,13 +105,13 @@ proc doStuff(action, data: string) =
   var ret: string
   ret = case action
         of "plist":
-          projectsGet()
+          projectGetAll()
         of "pcreate":
           if data == "":
             raise newException(UserError, "New project name needs to be provided using the '-d' switch.")
-          projectsCreate(data)
+          projectCreate(data)
         else:
-          projectsGet()
+          projectGetAll()
   echo ret
 
 proc main*(action: string = "plist", data: string = "") =
