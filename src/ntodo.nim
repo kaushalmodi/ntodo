@@ -1,7 +1,7 @@
 # Todoist API REST v8
 # http://doist.github.io/todoist-api/rest/v8
 
-import os, options, httpclient, json, strutils, typetraits
+import os, options, httpclient, json, strutils, strformat, typetraits
 
 const
   tokenFileName = ".todoist-token"
@@ -37,9 +37,16 @@ proc getJson(url: string): JsonNode =
 proc getProjects(): string =
   ## Get Todoist projects.
   let
-    url = getApiUrl("projects")
-    jObj = url.getJson()
-  return jObj.pretty()
+    jsonObj = getApiUrl("projects").getJson()
+  result = "Projects:\n\n"
+  for proj in jsonObj:
+    # https://developer.todoist.com/rest/v8/#get-a-project
+    # id, name, comment_count, order, indent
+    let
+      indent = " ".repeat(proj["indent"].getInt)
+      id = proj["id"].getInt
+      name = proj["name"].getStr
+    result = result & fmt"{indent}{name} ({id})" & "\n"
 
 proc doStuff(user, project: string, action: char) =
   ## Doer proc.
