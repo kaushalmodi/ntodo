@@ -64,7 +64,7 @@ proc requestPost(url, data: string): JsonNode =
     echo "Error: Unable to get contents from " & url
     return "[]".parseJson()
 
-proc projectGetAll(): string =
+proc projectGetAll(withIndex: bool = false): string =
   ## Get projects.
   ## https://developer.todoist.com/rest/v8/#get-all-projects
   jsonObj = getApiUrl("projects").requestGet()
@@ -75,15 +75,30 @@ proc projectGetAll(): string =
     # https://developer.todoist.com/rest/v8/#projects
     # id, name, comment_count, order, indent
     let
-      order = proj["order"].getInt
-      indent = " ".repeat(proj["indent"].getInt)
-      id = proj["id"].getInt
-      name = proj["name"].getStr
+      idxString = if withIndex:
+                    fmt"{idx:>4}. "
+                  else:
+                    "  "
+      order = proj["order"].getInt()
+      indent = "  ".repeat(proj["indent"].getInt() - 1)
+      id = proj["id"].getInt()
+      name = proj["name"].getStr()
     # echo fmt"order ({$order.type}) = {order}"
     # echo fmt"idx ({$idx.type}) = {idx}"
     doAssert idx == order
-    result = result & fmt"{indent}{name} ({id})" & "\n"
+    result = result & fmt"{idxString}{indent}{name} ({id})" & "\n"
     idx += 1
+
+proc projectGet(idx: int): string =
+  ## Get a project.
+  ## https://developer.todoist.com/rest/v8/#get-a-project
+  let
+    projId = jsonObj[idx]["id"].getInt()
+  jsonObj = getApiUrl("projects/" & $projId).requestGet()
+  let
+    id = jsonObj["id"].getInt()
+    name = jsonObj["name"].getStr()
+  result = "\n" & fmt"Selected project: {name} ({id})"
 
 proc projectCreate(name: string): string =
   ## Create a new project named NAME.
@@ -93,11 +108,9 @@ proc projectCreate(name: string): string =
       "name": name
       }
   jsonObj = getApiUrl("projects").requestPost($dataJson)
-  # https://developer.todoist.com/rest/v8/#projects
-  # id, name, comment_count, order, indent
   let
-    id = jsonObj["id"].getInt
-    name = jsonObj["name"].getStr
+    id = jsonObj["id"].getInt()
+    name = jsonObj["name"].getStr()
   result = fmt"New project created: {name} ({id})"
 
 proc doStuff(action, data: string) =
@@ -106,6 +119,12 @@ proc doStuff(action, data: string) =
   ret = case action
         of "plist":
           projectGetAll()
+        of "pget":
+          echo projectGetAll(withIndex = true)
+          stdout.write("Type the project index (number in the first column) that you need to get: ")
+          let
+            idx = readLine(stdin).strip().parseInt()
+          projectGet(idx)
         of "pcreate":
           if data == "":
             raise newException(UserError, "New project name needs to be provided using the '-d' switch.")

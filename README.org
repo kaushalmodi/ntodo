@@ -20,9 +20,9 @@ Suggestions for better API/Nim coding practice are welcome!
 
    /The placement of this token file will improve once with project
    matures./
-* TODO Rest API v8 [2/22]
+* TODO Rest API v8 [3/22]
 [[https://developer.todoist.com/rest/v8/][Rest API Reference]]
-** Projects [2/5]
+** Projects [3/5]
 *** DONE Get all projects
 CLOSED: [2018-08-29 Wed 17:54]
 #+begin_example
@@ -33,7 +33,12 @@ CLOSED: [2018-08-29 Wed 17:40]
 #+begin_example
 ntodo -a pcreate -d <prj name>
 #+end_example
-*** TODO Get a project
+*** DONE Get a project
+CLOSED: [2018-08-29 Wed 18:40]
+#+begin_example
+ntodo -a pget
+# Enter the project index number at prompt, and hit Enter.
+#+end_example
 *** TODO Update a project
 *** TODO Delete a project
 ** Tasks [0/7]
