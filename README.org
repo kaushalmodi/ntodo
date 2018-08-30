@@ -20,7 +20,7 @@ to work.*
 
    /The placement of this token file will improve once with project
    matures./
-* TODO Rest API v8 [7/24]
+* TODO Rest API v8 [8/24]
 [[https://developer.todoist.com/rest/v8/][Rest API Reference]]
 - *Projects* [5/5]
   - [X] Get all projects
@@ -47,20 +47,29 @@ to work.*
     ntodo -p delete
     # Enter the project index number at prompt, and hit Enter.
     #+end_example
-- *Tasks* [2/9]
+- *Tasks* [3/9]
   - [X] Get tasks
     #+begin_example
     ntodo -t list
     #+end_example
   - Create a new task
-    - [X] Default (In Inbox. no labels)
+    - [X] Default (In Inbox, no labels)
       #+begin_example
       ntodo -t create
       # Enter the task name.
       # Enter the due date string (like "tomorrow", "today at 9pm", etc.)
       # Enter a priority between 1 and 4; Just hitting Enter defaults to 1.
+      # Enter "y" or hit Enter to default to creating the task in Inbox.
       #+end_example
-    - [ ] In user-specified project
+    - [X] In user-specified project (No labels)
+      #+begin_example
+      ntodo -t create
+      # Enter the task name.
+      # Enter the due date string (like "tomorrow", "today at 9pm", etc.)
+      # Enter a priority between 1 and 4; Just hitting Enter defaults to 1.
+      # Enter "n" to create the task in the to-be-selected project.
+      # Enter the project index number at prompt, and hit Enter.
+      #+end_example
     - [ ] In user-specified project, with specified one or more labels
   - [ ] Get a task
   - [ ] Update a task

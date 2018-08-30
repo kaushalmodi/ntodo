@@ -1,6 +1,7 @@
 import strformat, strutils, json, httpclient
 # import typetraits
 import ./core
+import ./projects as p
 
 const
   urlPart = "tasks"
@@ -37,15 +38,31 @@ proc getAll(withIndex: bool = false): string =
       fmt"      {indent}| {url}" & "\n\n"
     idx += 1
 
-proc create(content, due: string, priority: Priority): string =
+proc create(content, due: string, priority: Priority, inInbox: bool): string =
   ## Create a new task named NAME in "Inbox".
   ## https://developer.todoist.com/rest/v8/#create-a-new-task
-  let
-    dataJson = %*{
-      "content": content,
-      "due_string": due,
-      "due_lang": defaultDueLang,
-      "priority": priority
+  var
+    dataJson: JsonNode
+    projJson: JsonNode
+    projName = "Inbox"
+  if inInbox:
+    dataJson = %*
+      {
+        "content": content,
+        "due_string": due,
+        "due_lang": defaultDueLang,
+        "priority": priority
+      }
+  else:
+    projJson = p.getJson(" where you want to create this task")
+    projName = projJson["name"].getStr()
+    dataJson = %*
+      {
+        "content": content,
+        "due_string": due,
+        "due_lang": defaultDueLang,
+        "priority": priority,
+        "project_id": projJson["id"].getInt()
       }
   # echo dataJson.pretty()
   jsonObj = getApiUrl(urlPart).req(HttpPost, $dataJson)
@@ -55,7 +72,7 @@ proc create(content, due: string, priority: Priority): string =
     content = jsonObj["content"].getStr()
     due_string = jsonObj["due"]["string"].getStr()
     priority = jsonObj["priority"].getInt()
-  result = fmt"Task created: “{content}” of priority {priority}, due on {due_string}"
+  result = fmt"Task created in {projName}: “{content}”, priority {priority}, due {due_string}"
 
 proc action*(data, action: string): string =
   ## Task actions.
@@ -67,13 +84,17 @@ proc action*(data, action: string): string =
              let content= readLine(stdin).strip()
              stdout.write("Task due string: ")
              let due = readLine(stdin).strip()
-             stdout.write("Priority [1-4] [default=1]: ")
+             stdout.write("Priority [1-4] (default=1): ")
              let
                priorityStr = readLine(stdin).strip()
                priority: Priority = if priorityStr == "":
                                       defaultPriority
                                     else:
                                       priorityStr.parseInt()
-             create(content, due, priority)
+             stdout.write("Create task in Inbox? [y/n] (default=y): ")
+             let
+               inInboxStr = readLine(stdin).strip().toLowerAscii()
+               inInbox = (inInboxStr == "") or (inInboxStr == "y")
+             create(content, due, priority, inInbox)
            else:
              getAll()
