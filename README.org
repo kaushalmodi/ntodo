@@ -36,9 +36,9 @@ to work.*
     ntodo -p get
     # Enter the project index number at prompt, and hit Enter.
     #+end_example
-  - [X] Update a project
+  - [X] Update (rename) a project
     #+begin_example
-    ntodo -p update
+    ntodo -p rename
     # Enter the project index number at prompt, and hit Enter.
     # Enter the new project name at prompt, and hit Enter.
     #+end_example
