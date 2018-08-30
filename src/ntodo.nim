@@ -1,7 +1,7 @@
 # Todoist API REST v8
 # http://doist.github.io/todoist-api/rest/v8
 
-import os, strutils, sequtils, sugar
+import os, strutils, strformat, sequtils, sugar
 import ntodopkg/globals
 import ntodopkg/projects as p
 import ntodopkg/tasks as t
@@ -27,7 +27,7 @@ proc main*(data = "", project = "", task = "") =
       raise newException(UserError, "User needs to select only one of the sub-command switches: -p/--project, -t/--task.")
     doStuff(data, project, task)
   except:
-    echo "\n[ERROR] " & getCurrentExceptionMsg() & "\n"
+    echo "\n" & fmt"[Error] {getCurrentException().name}: {getCurrentException().msg}"
 
 when isMainModule:
   import cligen
