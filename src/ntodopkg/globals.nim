@@ -7,6 +7,7 @@ const
 var
   jsonObj*: JsonNode
   client*: Option[HttpClient]
+  token*: Option[string]
 
 type
   UserError* = object of Exception

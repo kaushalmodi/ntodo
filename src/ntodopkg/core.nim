@@ -3,8 +3,10 @@ import ./globals
 export globals
 
 proc getToken*(): string =
-  ## Get Todoist API token
-  return tokenFileName.readFile().strip()
+  ## Get Todoist API token.
+  if isNone(token):
+    token = some(tokenFileName.readFile().strip())
+  return get(token)
 
 proc getUuid*(): string =
   ## Generate a 36-digit UUID string like ``uuidgen`` in Unix.
@@ -24,7 +26,7 @@ proc getClient*(): HttpClient =
   ## Create a new http client if one doesn't already exist.
   if isNone(client):
     client = some(newHttpClient())
-  get(client)
+  return get(client)
 
 proc getApiUrl*(cmd: string): string =
   ## Get the full API URL for a command.
