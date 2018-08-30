@@ -1,28 +1,33 @@
 # Todoist API REST v8
 # http://doist.github.io/todoist-api/rest/v8
 
-import os, strutils
+import os, strutils, sequtils, sugar
 import ntodopkg/globals
 import ntodopkg/projects as p
 import ntodopkg/tasks as t
 
+# https://gitter.im/nim-lang/Nim?at=5b8841e1f5402f32aab447f1
+proc isOneHot(s: openArray[string]): bool =
+  ## Returns true only if one element in S is a non-empty string.
+  s.filter(s => s != "").len == 1
+
 proc doStuff(data, projectAction, taskAction: string) =
   ## Doer proc.
   var str = ""
-  str = if projectAction != "":
-          p.action(data, projectAction)
-        elif taskAction != "":
-          t.action(data, taskAction)
-        else:
-          "User needs to select one of the sub-command switches like -p/--project, -t/--task."
+  if projectAction != "":
+    str = p.action(data, projectAction)
+  elif taskAction != "":
+    str = t.action(data, taskAction)
   echo str
 
 proc main*(data = "", project = "", task = "") =
   ## Main proc.
   try:
+    if (not isOneHot(@[project, task])):
+      raise newException(UserError, "User needs to select only one of the sub-command switches: -p/--project, -t/--task.")
     doStuff(data, project, task)
   except:
-    echo "  [ERROR] " & getCurrentExceptionMsg() & "\n"
+    echo "\n[ERROR] " & getCurrentExceptionMsg() & "\n"
 
 when isMainModule:
   import cligen
