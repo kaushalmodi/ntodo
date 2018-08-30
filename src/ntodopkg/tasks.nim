@@ -38,7 +38,7 @@ proc getAll(withIndex: bool = false): string =
     idx += 1
 
 proc create(content, due: string, priority: Priority): string =
-  ## Create a new task named NAME.
+  ## Create a new task named NAME in "Inbox".
   ## https://developer.todoist.com/rest/v8/#create-a-new-task
   let
     dataJson = %*{

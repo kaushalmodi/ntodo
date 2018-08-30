@@ -52,7 +52,7 @@ to work.*
     #+begin_example
     ntodo -t list
     #+end_example
-  - [X] Create a new task
+  - [X] Create a new task in Inbox
     #+begin_example
     ntodo -t create
     # Enter the task name.
