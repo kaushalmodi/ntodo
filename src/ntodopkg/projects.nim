@@ -2,10 +2,14 @@ import strformat, strutils, json, httpclient
 import typetraits
 import ./core
 
+const
+  urlPart = "projects"
+
 proc getAll(withIndex: bool = false): string =
   ## Get projects.
   ## https://developer.todoist.com/rest/v8/#get-all-projects
-  jsonObj = getApiUrl("projects").req(HttpGet)
+  jsonObj = getApiUrl(urlPart).req(HttpGet)
+  doAssert jsonObj.isNil() == false
   var
     idx = 0
   result = "Projects:\n\n"
@@ -33,10 +37,11 @@ proc get(idx: int): string =
   doAssert jsonObj.isNil() == false
   let
     projId = jsonObj[idx]["id"].getInt()
-  jsonObj = getApiUrl("projects/" & $projId).req(HttpGet)
+    jsonObj2 = getApiUrl(urlPart & "/" & $projId).req(HttpGet)
+  doAssert jsonObj2.isNil() == false
   let
-    id = jsonObj["id"].getInt()
-    name = jsonObj["name"].getStr()
+    id = jsonObj2["id"].getInt()
+    name = jsonObj2["name"].getStr()
   result = "\n" & fmt"Selected project: {name} ({id})"
 
 proc create(name: string): string =
@@ -46,7 +51,8 @@ proc create(name: string): string =
     dataJson = %*{
       "name": name
       }
-  jsonObj = getApiUrl("projects").req(HttpPost, $dataJson)
+  jsonObj = getApiUrl(urlPart).req(HttpPost, $dataJson)
+  doAssert jsonObj.isNil() == false
   let
     id = jsonObj["id"].getInt()
     name = jsonObj["name"].getStr()
@@ -62,7 +68,8 @@ proc rename(idx: int, name: string): string =
     dataJson = %*{
       "name": name
       }
-  discard getApiUrl("projects/" & $projId).req(HttpPost, $dataJson)
+    jsonObj2 = getApiUrl(urlPart & "/" & $projId).req(HttpPost, $dataJson)
+  doAssert jsonObj2.isNil() == false
   result = "\n" & fmt"Renamed project ({projId}) from ‘{oldName}’ to ‘{name}’"
 
 proc delete(idx: int): string =
@@ -72,7 +79,8 @@ proc delete(idx: int): string =
   let
     projId = jsonObj[idx]["id"].getInt()
     name = jsonObj[idx]["name"].getStr()
-  discard getApiUrl("projects/" & $projId).req(HttpDelete)
+    jsonObj2 = getApiUrl(urlPart & "/" & $projId).req(HttpDelete)
+  doAssert jsonObj2.isNil() == false
   result = "\n" & fmt"Deleted project: {name} ({projId})"
 
 proc action*(data, action: string): string =
