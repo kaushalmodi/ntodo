@@ -38,6 +38,16 @@ proc getAll(withIndex: bool = false): string =
       fmt"      {indent}| {url}" & "\n\n"
     idx += 1
 
+proc getJson*(str = ""): JsonNode =
+  ## Display a list of all tasks and prompt user to pick an index.
+  ## Returns the picked task's JSON object.
+  echo getAll(withIndex = true)
+  # Above `getAll` call populates the global var `jsonObj`.
+  stdout.write("Type the task index number (first column)" & str & ": ")
+  let
+    idx = readLine(stdin).strip().parseInt()
+  return jsonObj[idx]
+
 proc create(content, due: string, priority: Priority, inInbox: bool): string =
   ## Create a new task named NAME in "Inbox".
   ## https://developer.todoist.com/rest/v8/#create-a-new-task
@@ -74,6 +84,26 @@ proc create(content, due: string, priority: Priority, inInbox: bool): string =
     priority = jsonObj["priority"].getInt()
   result = fmt"Task created in {projName}: “{content}”, priority {priority}, due {due_string}"
 
+proc get(id: int): string =
+  ## Get a task with id ID.
+  ## https://developer.todoist.com/rest/v8/#get-a-task
+  let
+    jsonObj = getApiUrl(urlPart & "/" & $id).req(HttpGet)
+  # echo jsonObj.pretty()
+  let
+    idLocal = jsonObj["id"].getInt()
+    project_id = jsonObj["project_id"].getInt()
+    content = jsonObj["content"].getStr()
+    comment_count = jsonObj["comment_count"].getInt()
+    commentCountString = if comment_count > 0:
+                           fmt", comments: {comment_count}"
+                         else:
+                           ""
+    priority = jsonObj["priority"].getInt()
+  result = "\n" & fmt"Selected task:" & "\n" &
+    fmt"{content} [ {priority} ]" & "\n" &
+    fmt"  | project id: {project_id}, task id: {idLocal}{commentCountString}" & "\n"
+
 proc action*(data, action: string): string =
   ## Task actions.
   result = case action
@@ -96,5 +126,8 @@ proc action*(data, action: string): string =
                inInboxStr = readLine(stdin).strip().toLowerAscii()
                inInbox = (inInboxStr == "") or (inInboxStr == "y")
              create(content, due, priority, inInbox)
+           of "get":
+             let id = getJson(" that you need to get")["id"].getInt()
+             get(id)
            else:
              getAll()
