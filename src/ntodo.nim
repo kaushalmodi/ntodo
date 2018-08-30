@@ -1,136 +1,28 @@
 # Todoist API REST v8
 # http://doist.github.io/todoist-api/rest/v8
 
-import os, options, httpclient, json, strutils, strformat, typetraits, random
-
-const
-  tokenFileName = ".todoist-token"
-  apiBaseUrl = "https://beta.todoist.com/API/v8"
-
-type
-  UserError = object of Exception
-
-var
-  client: Option[HttpClient]
-  jsonObj: JsonNode
-
-proc getToken(): string =
-  ## Get Todoist API token
-  return tokenFileName.readFile().strip()
-
-proc getUuid(): string =
-  ## Generate a 36-digit UUID string like ``uuidgen`` in Unix.
-  ## Example: e0e7df1f-5bd4-4196-a0a2-26cd6a007c6c
-  #                        1    1    2
-  #           0       8    3    8    3
-  result = ""
-  for i in 0 .. 35:
-    if i in {8, 13, 18, 23}:
-      result = result & "-"
-    else:
-      randomize()
-      let r = rand(15)
-      result = result & fmt"{r:#x}"[2 .. 2]
-
-proc getClient(): HttpClient =
-  ## Create a new http client if one doesn't already exist.
-  if isNone(client):
-    var c = newHttpClient()
-    c.headers = newHttpHeaders({ "Authorization" : "Bearer " & getToken() })
-    client = some(c)
-  get(client)
-
-proc getApiUrl(cmd: string): string =
-  ## Get the full API URL for a command.
-  return apiBaseUrl & "/" & cmd
-
-proc requestGet(url: string): JsonNode =
-  ## Get JSON object returned from a GET request to URL.
-  try:
-    return getClient().getContent(url).parseJson()
-  except:
-    echo "Error: Unable to get contents from " & url
-    return "[]".parseJson()
-
-proc requestPost(url, data: string): JsonNode =
-  ## Get JSON object returned from a POST request to URL.
-  try:
-    var c = getClient()
-    c.headers = newHttpHeaders({ "Content-Type": "application/json",
-                                 "X-Request-Id": getUuid(),
-                                 "Authorization": "Bearer " & getToken() })
-    return c.request(url, httpMethod = HttpPost, body = data).body.parseJson()
-  except:
-    echo "Error: Unable to get contents from " & url
-    return "[]".parseJson()
-
-proc projectGetAll(withIndex: bool = false): string =
-  ## Get projects.
-  ## https://developer.todoist.com/rest/v8/#get-all-projects
-  jsonObj = getApiUrl("projects").requestGet()
-  var
-    idx = 0
-  result = "Projects:\n\n"
-  for proj in jsonObj:
-    # https://developer.todoist.com/rest/v8/#projects
-    # id, name, comment_count, order, indent
-    let
-      idxString = if withIndex:
-                    fmt"{idx:>4}. "
-                  else:
-                    "  "
-      order = proj["order"].getInt()
-      indent = "  ".repeat(proj["indent"].getInt() - 1)
-      id = proj["id"].getInt()
-      name = proj["name"].getStr()
-    # echo fmt"order ({$order.type}) = {order}"
-    # echo fmt"idx ({$idx.type}) = {idx}"
-    doAssert idx == order
-    result = result & fmt"{idxString}{indent}{name} ({id})" & "\n"
-    idx += 1
-
-proc projectGet(idx: int): string =
-  ## Get a project.
-  ## https://developer.todoist.com/rest/v8/#get-a-project
-  let
-    projId = jsonObj[idx]["id"].getInt()
-  jsonObj = getApiUrl("projects/" & $projId).requestGet()
-  let
-    id = jsonObj["id"].getInt()
-    name = jsonObj["name"].getStr()
-  result = "\n" & fmt"Selected project: {name} ({id})"
-
-proc projectCreate(name: string): string =
-  ## Create a new project named NAME.
-  ## https://developer.todoist.com/rest/v8/#create-a-new-project
-  let
-    dataJson = %*{
-      "name": name
-      }
-  jsonObj = getApiUrl("projects").requestPost($dataJson)
-  let
-    id = jsonObj["id"].getInt()
-    name = jsonObj["name"].getStr()
-  result = fmt"New project created: {name} ({id})"
+import os, strutils
+import ntodopkg/globals
+import ntodopkg/projects as p
 
 proc doStuff(action, data: string) =
   ## Doer proc.
   var ret: string
   ret = case action
         of "plist":
-          projectGetAll()
+          p.getAll()
         of "pget":
-          echo projectGetAll(withIndex = true)
+          echo p.getAll(withIndex = true)
           stdout.write("Type the project index (number in the first column) that you need to get: ")
           let
             idx = readLine(stdin).strip().parseInt()
-          projectGet(idx)
+          p.get(idx)
         of "pcreate":
           if data == "":
             raise newException(UserError, "New project name needs to be provided using the '-d' switch.")
-          projectCreate(data)
+          p.create(data)
         else:
-          projectGetAll()
+          p.getAll()
   echo ret
 
 proc main*(action: string = "plist", data: string = "") =
