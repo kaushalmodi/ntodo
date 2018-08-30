@@ -67,31 +67,29 @@ proc create(name: string): string =
     name = jsonObj["name"].getStr()
   result = fmt"New project created: {name} ({id})"
 
-proc rename(id: int, name: string): string =
-  ## Rename the project with id ID to NAME.
+proc rename(obj: JsonNode, name: string): string =
+  ## Rename the project with JSON object OBJ to NAME.
   ## https://developer.todoist.com/rest/v8/#update-a-project
-  doAssert jsonObj.isNil() == false
   let
-    idLocal = jsonObj[id]["id"].getInt()
-    oldName = jsonObj[id]["name"].getStr()
+    id = obj["id"].getInt()
+    oldName = obj["name"].getStr()
     dataJson = %*
       {
         "name": name
       }
-    jsonObj2 = getApiUrl(urlPart & "/" & $idLocal).req(HttpPost, $dataJson)
-  doAssert jsonObj2.isNil() == false
-  result = "\n" & fmt"Renamed project ({idLocal}) from ‘{oldName}’ to ‘{name}’"
-
-proc delete(id: int): string =
-  ## Delete the project with id ID.
-  ## https://developer.todoist.com/rest/v8/#delete-a-project
+    jsonObj = getApiUrl(urlPart & "/" & $id).req(HttpPost, $dataJson)
   doAssert jsonObj.isNil() == false
+  result = "\n" & fmt"Renamed project ({id}) from ‘{oldName}’ to ‘{name}’"
+
+proc delete(obj: JsonNode): string =
+  ## Delete the project with JSON object OBJ.
+  ## https://developer.todoist.com/rest/v8/#delete-a-project
   let
-    idLocal = jsonObj[id]["id"].getInt()
-    name = jsonObj[id]["name"].getStr()
-    jsonObj2 = getApiUrl(urlPart & "/" & $idLocal).req(HttpDelete)
-  doAssert jsonObj2.isNil() == false
-  result = "\n" & fmt"Deleted project: {name} ({idLocal})"
+    id = obj["id"].getInt()
+    name = obj["name"].getStr()
+    jsonObj = getApiUrl(urlPart & "/" & $id).req(HttpDelete)
+  doAssert jsonObj.isNil() == false
+  result = "\n" & fmt"Deleted project: {name} ({id})"
 
 proc action*(data, action: string): string =
   ## Project actions.
@@ -106,13 +104,14 @@ proc action*(data, action: string): string =
                raise newException(UserError, "New project name needs to be provided using the '-d' switch.")
              create(data)
            of "rename":
-             let id = getJson(" that you want to rename")["id"].getInt()
+             let
+               obj = getJson(" that you want to rename")
+               id = obj["id"].getInt()
              stdout.write(fmt"Type the new name for the project at index {id}: ")
              let
                name = readLine(stdin).strip()
-             rename(id, name)
+             rename(obj, name)
            of "delete":
-             let id = getJson(" that you need to DELETE")["id"].getInt()
-             delete(id)
+             delete(getJson(" that you need to DELETE"))
            else:
              getAll()
