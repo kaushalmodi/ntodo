@@ -20,7 +20,7 @@ to work.*
 
    /The placement of this token file will improve once with project
    matures./
-* TODO Rest API v8 [9/24]
+* TODO Rest API v8 [10/24]
 [[https://developer.todoist.com/rest/v8/][Rest API Reference]]
 - *Projects* [5/5]
   - [X] Get all projects
@@ -47,7 +47,7 @@ to work.*
     ntodo -p delete
     # Enter the project index number at prompt, and hit Enter.
     #+end_example
-- *Tasks* [4/9]
+- *Tasks* [5/9]
   - [X] Get tasks
     #+begin_example
     ntodo -t list
@@ -79,7 +79,11 @@ to work.*
   - [ ] Update a task
   - [ ] Close a task
   - [ ] Reopen a task
-  - [ ] Delete a task
+  - [X] Delete a task
+    #+begin_example
+    ntodo -t delete
+    # Enter the task index number at prompt, and hit Enter.
+    #+end_example
 - *Comments* [0/5]
   - [ ] Get all comments
   - [ ] Create a new comment

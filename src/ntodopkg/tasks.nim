@@ -104,6 +104,16 @@ proc get(id: int): string =
     fmt"{content} [ {priority} ]" & "\n" &
     fmt"  | project id: {project_id}, task id: {idLocal}{commentCountString}" & "\n"
 
+proc delete(obj: JsonNode): string =
+  ## Delete the task with JSON object OBJ.
+  ## https://developer.todoist.com/rest/v8/#delete-a-task
+  let
+    id = obj["id"].getInt()
+    content = obj["content"].getStr()
+    jsonObj = getApiUrl(urlPart & "/" & $id).req(HttpDelete)
+  doAssert jsonObj.isNil() == false
+  result = "\n" & fmt"Deleted task: {content} ({id})"
+
 proc action*(data, action: string): string =
   ## Task actions.
   result = case action
@@ -129,5 +139,7 @@ proc action*(data, action: string): string =
            of "get":
              let id = getJson(" that you need to get")["id"].getInt()
              get(id)
+           of "delete":
+             delete(getJson(" that you need to DELETE"))
            else:
              getAll()
