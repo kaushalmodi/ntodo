@@ -31,16 +31,15 @@ proc getAll(withIndex: bool = false): string =
     result = result & fmt"{idxString}{indent}{name} ({id})" & "\n"
     idx += 1
 
-proc getId*(str = ""): int =
+proc getJson*(str = ""): JsonNode =
   ## Display a list of all project names and prompt user to pick an index.
-  ## Returns the picked project's ID.
+  ## Returns the picked project's JSON object.
   echo getAll(withIndex = true)
   # Above `getAll` call populates the global var `jsonObj`.
   stdout.write("Type the project index number (first column)" & str & ": ")
   let
     idx = readLine(stdin).strip().parseInt()
-    id = jsonObj[idx]["id"].getInt()
-  return id
+  return jsonObj[idx]
 
 proc get(id: int): string =
   ## Get a project associated with id ID.
@@ -98,18 +97,20 @@ proc action*(data, action: string): string =
            of "list":
              getAll()
            of "get":
-             get(getId(" that you need to get"))
+             let id = getJson(" that you need to get")["id"].getInt()
+             get(id)
            of "create":
              if data == "":
                raise newException(UserError, "New project name needs to be provided using the '-d' switch.")
              create(data)
            of "rename":
-             let id = getId(" that you want to rename")
+             let id = getJson(" that you want to rename")["id"].getInt()
              stdout.write(fmt"Type the new name for the project at index {id}: ")
              let
                name = readLine(stdin).strip()
              rename(id, name)
            of "delete":
-             delete(getId(" that you need to DELETE"))
+             let id = getJson(" that you need to DELETE")["id"].getInt()
+             delete(id)
            else:
              getAll()
