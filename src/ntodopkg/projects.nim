@@ -31,18 +31,27 @@ proc getAll(withIndex: bool = false): string =
     result = result & fmt"{idxString}{indent}{name} ({id})" & "\n"
     idx += 1
 
-proc get(idx: int): string =
-  ## Get a project.
+proc getId*(str = ""): int =
+  ## Display a list of all project names and prompt user to pick an index.
+  ## Returns the picked project's ID.
+  echo getAll(withIndex = true)
+  # Above `getAll` call populates the global var `jsonObj`.
+  stdout.write("Type the project index number (first column)" & str & ": ")
+  let
+    idx = readLine(stdin).strip().parseInt()
+    id = jsonObj[idx]["id"].getInt()
+  return id
+
+proc get(id: int): string =
+  ## Get a project associated with id ID.
   ## https://developer.todoist.com/rest/v8/#get-a-project
+  let
+    jsonObj = getApiUrl(urlPart & "/" & $id).req(HttpGet)
   doAssert jsonObj.isNil() == false
   let
-    projId = jsonObj[idx]["id"].getInt()
-    jsonObj2 = getApiUrl(urlPart & "/" & $projId).req(HttpGet)
-  doAssert jsonObj2.isNil() == false
-  let
-    id = jsonObj2["id"].getInt()
-    name = jsonObj2["name"].getStr()
-  result = "\n" & fmt"Selected project: {name} ({id})"
+    idLocal = jsonObj["id"].getInt()
+    nameLocal = jsonObj["name"].getStr()
+  result = "\n" & fmt"Selected project: {nameLocal} ({idLocal})"
 
 proc create(name: string): string =
   ## Create a new project named NAME.
@@ -58,30 +67,30 @@ proc create(name: string): string =
     name = jsonObj["name"].getStr()
   result = fmt"New project created: {name} ({id})"
 
-proc rename(idx: int, name: string): string =
-  ## Rename the IDX referenced project's name to NAME.
+proc rename(id: int, name: string): string =
+  ## Rename the project with id ID to NAME.
   ## https://developer.todoist.com/rest/v8/#update-a-project
   doAssert jsonObj.isNil() == false
   let
-    projId = jsonObj[idx]["id"].getInt()
-    oldName = jsonObj[idx]["name"].getStr()
+    idLocal = jsonObj[id]["id"].getInt()
+    oldName = jsonObj[id]["name"].getStr()
     dataJson = %*{
       "name": name
       }
-    jsonObj2 = getApiUrl(urlPart & "/" & $projId).req(HttpPost, $dataJson)
+    jsonObj2 = getApiUrl(urlPart & "/" & $idLocal).req(HttpPost, $dataJson)
   doAssert jsonObj2.isNil() == false
-  result = "\n" & fmt"Renamed project ({projId}) from ‘{oldName}’ to ‘{name}’"
+  result = "\n" & fmt"Renamed project ({idLocal}) from ‘{oldName}’ to ‘{name}’"
 
-proc delete(idx: int): string =
+proc delete(id: int): string =
   ## Delete the IDX referenced project.
   ## https://developer.todoist.com/rest/v8/#delete-a-project
   doAssert jsonObj.isNil() == false
   let
-    projId = jsonObj[idx]["id"].getInt()
-    name = jsonObj[idx]["name"].getStr()
-    jsonObj2 = getApiUrl(urlPart & "/" & $projId).req(HttpDelete)
+    idLocal = jsonObj[id]["id"].getInt()
+    name = jsonObj[id]["name"].getStr()
+    jsonObj2 = getApiUrl(urlPart & "/" & $idLocal).req(HttpDelete)
   doAssert jsonObj2.isNil() == false
-  result = "\n" & fmt"Deleted project: {name} ({projId})"
+  result = "\n" & fmt"Deleted project: {name} ({idLocal})"
 
 proc action*(data, action: string): string =
   ## Project actions.
@@ -89,29 +98,18 @@ proc action*(data, action: string): string =
            of "list":
              getAll()
            of "get":
-             echo getAll(withIndex = true)
-             stdout.write("Type the project index (number in the first column) that you need to get: ")
-             let
-               idx = readLine(stdin).strip().parseInt()
-             get(idx)
+             get(getId(" that you need to get"))
            of "create":
              if data == "":
                raise newException(UserError, "New project name needs to be provided using the '-d' switch.")
              create(data)
            of "rename":
-             echo getAll(withIndex = true)
-             stdout.write("Type the project index (number in the first column) that you want to rename: ")
-             let
-               idx = readLine(stdin).strip().parseInt()
-             stdout.write(fmt"Type the new name for the project at index {idx}: ")
+             let id = getId(" that you want to rename")
+             stdout.write(fmt"Type the new name for the project at index {id}: ")
              let
                name = readLine(stdin).strip()
-             rename(idx, name)
+             rename(id, name)
            of "delete":
-             echo getAll(withIndex = true)
-             stdout.write("Type the project index (number in the first column) that you need to DELETE: ")
-             let
-               idx = readLine(stdin).strip().parseInt()
-             delete(idx)
+             delete(getId(" that you need to DELETE"))
            else:
              getAll()
