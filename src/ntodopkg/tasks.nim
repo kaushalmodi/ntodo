@@ -50,6 +50,7 @@ proc create(content, due: string, priority: Priority): string =
   # echo dataJson.pretty()
   jsonObj = getApiUrl(urlPart).req(HttpPost, $dataJson)
   doAssert jsonObj.isNil() == false
+  # echo jsonObj.pretty()
   let
     content = jsonObj["content"].getStr()
     due_string = jsonObj["due"]["string"].getStr()
