@@ -56,8 +56,9 @@ proc create(name: string): string =
   ## Create a new project named NAME.
   ## https://developer.todoist.com/rest/v8/#create-a-new-project
   let
-    dataJson = %*{
-      "name": name
+    dataJson = %*
+      {
+        "name": name
       }
   jsonObj = getApiUrl(urlPart).req(HttpPost, $dataJson)
   doAssert jsonObj.isNil() == false
@@ -73,15 +74,16 @@ proc rename(id: int, name: string): string =
   let
     idLocal = jsonObj[id]["id"].getInt()
     oldName = jsonObj[id]["name"].getStr()
-    dataJson = %*{
-      "name": name
+    dataJson = %*
+      {
+        "name": name
       }
     jsonObj2 = getApiUrl(urlPart & "/" & $idLocal).req(HttpPost, $dataJson)
   doAssert jsonObj2.isNil() == false
   result = "\n" & fmt"Renamed project ({idLocal}) from ‘{oldName}’ to ‘{name}’"
 
 proc delete(id: int): string =
-  ## Delete the IDX referenced project.
+  ## Delete the project with id ID.
   ## https://developer.todoist.com/rest/v8/#delete-a-project
   doAssert jsonObj.isNil() == false
   let
