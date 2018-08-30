@@ -46,7 +46,13 @@ proc req*(url: string, mthd: HttpMethod, data = ""): JsonNode =
                                    "Authorization": "Bearer " & getToken() })
     let
       resp = c.request(url, httpMethod = mthd, body = data)
-    return resp.body.parseJson()
+      body = resp.body
+      bodyJson = if body == "":
+                   "[]"         # empty Json
+                 else:
+                   body
+    # echo fmt"Received body: `{resp.body}'"
+    return bodyJson.parseJson()
   except:
-    echo "Error: Unable to get contents from " & url
+    echo fmt"[Error req] {getCurrentException().name}: {getCurrentException().msg}"
     return "[]".parseJson()
