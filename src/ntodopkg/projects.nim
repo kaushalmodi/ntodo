@@ -1,10 +1,11 @@
-import strformat, strutils, json, typetraits
+import strformat, strutils, json, httpclient
+import typetraits
 import ./core
 
 proc getAll(withIndex: bool = false): string =
   ## Get projects.
   ## https://developer.todoist.com/rest/v8/#get-all-projects
-  jsonObj = getApiUrl("projects").requestGet()
+  jsonObj = getApiUrl("projects").req(HttpGet)
   var
     idx = 0
   result = "Projects:\n\n"
@@ -32,7 +33,7 @@ proc get(idx: int): string =
   doAssert jsonObj.isNil() == false
   let
     projId = jsonObj[idx]["id"].getInt()
-  jsonObj = getApiUrl("projects/" & $projId).requestGet()
+  jsonObj = getApiUrl("projects/" & $projId).req(HttpGet)
   let
     id = jsonObj["id"].getInt()
     name = jsonObj["name"].getStr()
@@ -45,7 +46,7 @@ proc create(name: string): string =
     dataJson = %*{
       "name": name
       }
-  jsonObj = getApiUrl("projects").requestPost($dataJson)
+  jsonObj = getApiUrl("projects").req(HttpPost, $dataJson)
   let
     id = jsonObj["id"].getInt()
     name = jsonObj["name"].getStr()
@@ -61,7 +62,7 @@ proc rename(idx: int, name: string): string =
     dataJson = %*{
       "name": name
       }
-  discard getApiUrl("projects/" & $projId).requestPost($dataJson)
+  discard getApiUrl("projects/" & $projId).req(HttpPost, $dataJson)
   result = "\n" & fmt"Renamed project ({projId}) from ‘{oldName}’ to ‘{name}’"
 
 proc delete(idx: int): string =
@@ -71,7 +72,7 @@ proc delete(idx: int): string =
   let
     projId = jsonObj[idx]["id"].getInt()
     name = jsonObj[idx]["name"].getStr()
-  discard getApiUrl("projects/" & $projId).requestDelete()
+  discard getApiUrl("projects/" & $projId).req(HttpDelete)
   result = "\n" & fmt"Deleted project: {name} ({projId})"
 
 proc action*(data, action: string): string =

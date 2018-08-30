@@ -32,34 +32,21 @@ proc getApiUrl*(cmd: string): string =
   ## Get the full API URL for a command.
   return apiBaseUrl & "/" & cmd
 
-proc requestGet*(url: string): JsonNode =
-  ## Get JSON object returned from a GET request to URL.
+proc req*(url: string, mthd: HttpMethod, data = ""): JsonNode =
+  ## Get JSON object returned from URL using MTHD HTTP method.
+  doAssert mthd in {HttpGet, HttpPost, HttpDelete}
   try:
-    var c = getClient()
-    c.headers = newHttpHeaders({ "Authorization" : "Bearer " & getToken() })
-    return c.request(url).body.parseJson()
-  except:
-    echo "Error: Unable to get contents from " & url
-    return "[]".parseJson()
-
-proc requestPost*(url, data: string): JsonNode =
-  ## Get JSON object returned from a POST request to URL.
-  try:
-    var c = getClient()
-    c.headers = newHttpHeaders({ "Content-Type": "application/json",
-                                 "X-Request-Id": getUuid(),
-                                 "Authorization": "Bearer " & getToken() })
-    return c.request(url, httpMethod = HttpPost, body = data).body.parseJson()
-  except:
-    echo "Error: Unable to get contents from " & url
-    return "[]".parseJson()
-
-proc requestDelete*(url: string): JsonNode =
-  ## Get JSON object returned from a DELETE request to URL.
-  try:
-    var c = getClient()
-    c.headers = newHttpHeaders({ "Authorization" : "Bearer " & getToken() })
-    return c.request(url, httpMethod = HttpDelete).body.parseJson()
+    var
+      c = getClient()
+    if mthd in {HttpGet, HttpDelete}:
+      c.headers = newHttpHeaders({ "Authorization" : "Bearer " & getToken() })
+    elif mthd in {HttpPost}:
+      c.headers = newHttpHeaders({ "Content-Type": "application/json",
+                                   "X-Request-Id": getUuid(),
+                                   "Authorization": "Bearer " & getToken() })
+    let
+      resp = c.request(url, httpMethod = mthd, body = data)
+    return resp.body.parseJson()
   except:
     echo "Error: Unable to get contents from " & url
     return "[]".parseJson()
