@@ -22,56 +22,52 @@ to work.*
    matures./
 * TODO Rest API v8 [4/22]
 [[https://developer.todoist.com/rest/v8/][Rest API Reference]]
-** Projects [4/5]
-*** DONE Get all projects
-CLOSED: [2018-08-29 Wed 17:54]
-#+begin_example
-ntodo -p list
-#+end_example
-*** DONE Create a new project
-CLOSED: [2018-08-29 Wed 17:40]
-#+begin_example
-ntodo -p create -d <prj name>
-#+end_example
-*** DONE Get a project
-CLOSED: [2018-08-29 Wed 18:40]
-#+begin_example
-ntodo -p get
-# Enter the project index number at prompt, and hit Enter.
-#+end_example
-*** DONE Update a project
-CLOSED: [2018-08-30 Thu 13:45]
-#+begin_example
-ntodo -p update
-# Enter the project index number at prompt, and hit Enter.
-# Enter the new project name at prompt, and hit Enter.
-#+end_example
-*** TODO Delete a project
-** Tasks [0/7]
-*** TODO Get tasks
-*** TODO Create a new task
-*** TODO Get a task
-*** TODO Update a task
-*** TODO Close a task
-*** TODO Reopen a task
-*** TODO Delete a task
-** Comments [0/5]
-*** TODO Get all comments
-*** TODO Create a new comment
-*** TODO Get a comment
-*** TODO Update a comment
-*** TODO Delete a comment
-** Labels [0/5]
-*** TODO Get all labels
-*** TODO Create a new label
-*** TODO Get a label
-*** TODO Update a label
-*** TODO Delete a label
+- *Projects* [4/5]
+  - [X] Get all projects
+    #+begin_example
+    ntodo -p list
+    #+end_example
+  - [X] Create a new project
+    #+begin_example
+    ntodo -p create -d <prj name>
+    #+end_example
+  - [X] Get a project
+    #+begin_example
+    ntodo -p get
+    # Enter the project index number at prompt, and hit Enter.
+    #+end_example
+  - [X] Update a project
+    #+begin_example
+    ntodo -p update
+    # Enter the project index number at prompt, and hit Enter.
+    # Enter the new project name at prompt, and hit Enter.
+    #+end_example
+  - [ ] Delete a project
+- *Tasks* [0/7]
+  - [ ] Get tasks
+  - [ ] Create a new task
+  - [ ] Get a task
+  - [ ] Update a task
+  - [ ] Close a task
+  - [ ] Reopen a task
+  - [ ] Delete a task
+- *Comments* [0/5]
+  - [ ] Get all comments
+  - [ ] Create a new comment
+  - [ ] Get a comment
+  - [ ] Update a comment
+  - [ ] Delete a comment
+- *Labels* [0/5]
+  - [ ] Get all labels
+  - [ ] Create a new label
+  - [ ] Get a label
+  - [ ] Update a label
+  - [ ] Delete a label
 * TODO Sync API v7
 [[https://developer.todoist.com/sync/v7/][Sync API Reference]]
 * Legal
 This application is not created by, affiliated with, or supported by Doist.
 
 # Local Variables:
-# org-hierarchical-todo-statistics: nil
+# org-checkbox-hierarchical-statistics: nil
 # End:
