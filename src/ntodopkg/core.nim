@@ -23,9 +23,7 @@ proc getUuid*(): string =
 proc getClient*(): HttpClient =
   ## Create a new http client if one doesn't already exist.
   if isNone(client):
-    var c = newHttpClient()
-    c.headers = newHttpHeaders({ "Authorization" : "Bearer " & getToken() })
-    client = some(c)
+    client = some(newHttpClient())
   get(client)
 
 proc getApiUrl*(cmd: string): string =
@@ -35,7 +33,9 @@ proc getApiUrl*(cmd: string): string =
 proc requestGet*(url: string): JsonNode =
   ## Get JSON object returned from a GET request to URL.
   try:
-    return getClient().getContent(url).parseJson()
+    var c = getClient()
+    c.headers = newHttpHeaders({ "Authorization" : "Bearer " & getToken() })
+    return c.request(url).body.parseJson()
   except:
     echo "Error: Unable to get contents from " & url
     return "[]".parseJson()
