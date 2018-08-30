@@ -4,20 +4,23 @@
 import os, strutils
 import ntodopkg/globals
 import ntodopkg/projects as p
+import ntodopkg/tasks as t
 
-proc doStuff(data, projectAction: string) =
+proc doStuff(data, projectAction, taskAction: string) =
   ## Doer proc.
   var str = ""
   str = if projectAction != "":
           p.action(data, projectAction)
+        elif taskAction != "":
+          t.action(data, taskAction)
         else:
-          "User needs to select one of the sub-command switches like -p/--project."
+          "User needs to select one of the sub-command switches like -p/--project, -t/--task."
   echo str
 
-proc main*(data = "", project = "") =
+proc main*(data = "", project = "", task = "") =
   ## Main proc.
   try:
-    doStuff(data, project)
+    doStuff(data, project, task)
   except:
     echo "  [ERROR] " & getCurrentExceptionMsg() & "\n"
 
