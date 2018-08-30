@@ -29,6 +29,7 @@ proc getAll(withIndex: bool = false): string =
 proc get(idx: int): string =
   ## Get a project.
   ## https://developer.todoist.com/rest/v8/#get-a-project
+  doAssert jsonObj.isNil() == false
   let
     projId = jsonObj[idx]["id"].getInt()
   jsonObj = getApiUrl("projects/" & $projId).requestGet()
@@ -50,6 +51,18 @@ proc create(name: string): string =
     name = jsonObj["name"].getStr()
   result = fmt"New project created: {name} ({id})"
 
+proc update(idx: int, name: string): string =
+  ## Update the IDX referenced project's name to NAME.
+  ## https://developer.todoist.com/rest/v8/#update-a-project
+  doAssert jsonObj.isNil() == false
+  let
+    projId = jsonObj[idx]["id"].getInt()
+    dataJson = %*{
+      "name": name
+      }
+  discard getApiUrl("projects/" & $projId).requestPost($dataJson)
+  result = "\n" & fmt"Updating name of project with ID {projId} to: {name}"
+
 proc action*(data, action: string): string =
   ## Project actions.
   result = case action
@@ -65,5 +78,14 @@ proc action*(data, action: string): string =
              if data == "":
                raise newException(UserError, "New project name needs to be provided using the '-d' switch.")
              create(data)
+           of "update":
+             echo getAll(withIndex = true)
+             stdout.write("Type the project index (number in the first column) that you want to update: ")
+             let
+               idx = readLine(stdin).strip().parseInt()
+             stdout.write(fmt"Type the new name for the project at index {idx}: ")
+             let
+               name = readLine(stdin).strip()
+             update(idx, name)
            else:
              getAll()
