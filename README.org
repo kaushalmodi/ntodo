@@ -11,12 +11,12 @@ Suggestions for better API/Nim coding practice are welcome!
 
 
 * Token
-*Getting your token is necessary for ~ntodo~ to work.*
+*Creating your token file as explained below is necessary for ~ntodo~
+to work.*
 
 1. Go to [[https://todoist.com/prefs/integrations]].
-2. Copy your 40-char hexadecimal API token and save it to a
-   ~.todoist-token~ file in *the same dir* where you have the ~ntodo~
-   binary installed.
+2. Copy your 40-char API token and save it to a ~.todoist-token~ file
+   in *the same dir* where you have the ~ntodo~ binary installed.
 
    /The placement of this token file will improve once with project
    matures./
@@ -26,17 +26,17 @@ Suggestions for better API/Nim coding practice are welcome!
 *** DONE Get all projects
 CLOSED: [2018-08-29 Wed 17:54]
 #+begin_example
-ntodo -a plist
+ntodo -p list
 #+end_example
 *** DONE Create a new project
 CLOSED: [2018-08-29 Wed 17:40]
 #+begin_example
-ntodo -a pcreate -d <prj name>
+ntodo -p create -d <prj name>
 #+end_example
 *** DONE Get a project
 CLOSED: [2018-08-29 Wed 18:40]
 #+begin_example
-ntodo -a pget
+ntodo -p get
 # Enter the project index number at prompt, and hit Enter.
 #+end_example
 *** TODO Update a project

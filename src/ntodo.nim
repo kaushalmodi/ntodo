@@ -5,30 +5,19 @@ import os, strutils
 import ntodopkg/globals
 import ntodopkg/projects as p
 
-proc doStuff(action, data: string) =
+proc doStuff(data, projectAction: string) =
   ## Doer proc.
-  var ret: string
-  ret = case action
-        of "plist":
-          p.getAll()
-        of "pget":
-          echo p.getAll(withIndex = true)
-          stdout.write("Type the project index (number in the first column) that you need to get: ")
-          let
-            idx = readLine(stdin).strip().parseInt()
-          p.get(idx)
-        of "pcreate":
-          if data == "":
-            raise newException(UserError, "New project name needs to be provided using the '-d' switch.")
-          p.create(data)
+  var str = ""
+  str = if projectAction != "":
+          p.action(data, projectAction)
         else:
-          p.getAll()
-  echo ret
+          "User needs to select one of the sub-command switches like -p/--project."
+  echo str
 
-proc main*(action: string = "plist", data: string = "") =
+proc main*(data = "", project = "") =
   ## Main proc.
   try:
-    doStuff(action, data)
+    doStuff(data, project)
   except:
     echo "  [ERROR] " & getCurrentExceptionMsg() & "\n"
 

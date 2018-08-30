@@ -1,7 +1,7 @@
 import strformat, strutils, json
 import ./globals, ./core
 
-proc getAll*(withIndex: bool = false): string =
+proc getAll(withIndex: bool = false): string =
   ## Get projects.
   ## https://developer.todoist.com/rest/v8/#get-all-projects
   jsonObj = getApiUrl("projects").requestGet()
@@ -26,7 +26,7 @@ proc getAll*(withIndex: bool = false): string =
     result = result & fmt"{idxString}{indent}{name} ({id})" & "\n"
     idx += 1
 
-proc get*(idx: int): string =
+proc get(idx: int): string =
   ## Get a project.
   ## https://developer.todoist.com/rest/v8/#get-a-project
   let
@@ -37,7 +37,7 @@ proc get*(idx: int): string =
     name = jsonObj["name"].getStr()
   result = "\n" & fmt"Selected project: {name} ({id})"
 
-proc create*(name: string): string =
+proc create(name: string): string =
   ## Create a new project named NAME.
   ## https://developer.todoist.com/rest/v8/#create-a-new-project
   let
@@ -49,3 +49,21 @@ proc create*(name: string): string =
     id = jsonObj["id"].getInt()
     name = jsonObj["name"].getStr()
   result = fmt"New project created: {name} ({id})"
+
+proc action*(data, action: string): string =
+  ## Project actions.
+  result = case action
+           of "list":
+             getAll()
+           of "get":
+             echo getAll(withIndex = true)
+             stdout.write("Type the project index (number in the first column) that you need to get: ")
+             let
+               idx = readLine(stdin).strip().parseInt()
+             get(idx)
+           of "create":
+             if data == "":
+               raise newException(UserError, "New project name needs to be provided using the '-d' switch.")
+             create(data)
+           else:
+             getAll()
