@@ -2,6 +2,9 @@ import httpclient, json, random, strutils, strformat, options
 import ./globals
 export globals
 
+var
+  bodyDebug: string
+
 proc getToken*(): string =
   ## Get Todoist API token.
   if isNone(token):
@@ -51,8 +54,10 @@ proc req*(url: string, mthd: HttpMethod, data = ""): JsonNode =
                    "[]"         # empty Json
                  else:
                    body
-    # echo fmt"Received body: `{resp.body}'"
+    bodyDebug = body
     return bodyJson.parseJson()
   except:
-    echo fmt"[Error req] {getCurrentException().name}: {getCurrentException().msg}"
+    echo fmt"[Error: req] {getCurrentException().name}: {getCurrentException().msg}" & "\n" &
+      fmt"             Sent data: `{data}'" & "\n" &
+      fmt"             Response body: `{bodyDebug}'"
     return "[]".parseJson()
