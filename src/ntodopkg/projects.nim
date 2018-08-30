@@ -1,5 +1,5 @@
-import strformat, strutils, json
-import ./globals, ./core
+import strformat, strutils, json, typetraits
+import ./core
 
 proc getAll(withIndex: bool = false): string =
   ## Get projects.

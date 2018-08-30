@@ -1,5 +1,6 @@
 import httpclient, json, random, strutils, strformat, options
 import ./globals
+export globals
 
 proc getToken*(): string =
   ## Get Todoist API token
