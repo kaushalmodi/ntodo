@@ -64,6 +64,16 @@ proc rename(idx: int, name: string): string =
   discard getApiUrl("projects/" & $projId).requestPost($dataJson)
   result = "\n" & fmt"Renamed project ({projId}) from ‘{oldName}’ to ‘{name}’"
 
+proc delete(idx: int): string =
+  ## Delete the IDX referenced project.
+  ## https://developer.todoist.com/rest/v8/#delete-a-project
+  doAssert jsonObj.isNil() == false
+  let
+    projId = jsonObj[idx]["id"].getInt()
+    name = jsonObj[idx]["name"].getStr()
+  discard getApiUrl("projects/" & $projId).requestDelete()
+  result = "\n" & fmt"Deleted project: {name} ({projId})"
+
 proc action*(data, action: string): string =
   ## Project actions.
   result = case action
@@ -88,5 +98,11 @@ proc action*(data, action: string): string =
              let
                name = readLine(stdin).strip()
              rename(idx, name)
+           of "delete":
+             echo getAll(withIndex = true)
+             stdout.write("Type the project index (number in the first column) that you need to DELETE: ")
+             let
+               idx = readLine(stdin).strip().parseInt()
+             delete(idx)
            else:
              getAll()

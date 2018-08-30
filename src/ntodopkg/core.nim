@@ -51,3 +51,13 @@ proc requestPost*(url, data: string): JsonNode =
   except:
     echo "Error: Unable to get contents from " & url
     return "[]".parseJson()
+
+proc requestDelete*(url: string): JsonNode =
+  ## Get JSON object returned from a DELETE request to URL.
+  try:
+    var c = getClient()
+    c.headers = newHttpHeaders({ "Authorization" : "Bearer " & getToken() })
+    return c.request(url, httpMethod = HttpDelete).body.parseJson()
+  except:
+    echo "Error: Unable to get contents from " & url
+    return "[]".parseJson()
