@@ -1,4 +1,4 @@
-#+title: Nim wrapper for Todoist Rest/Sync API
+#+title: Todoist CLI app written in Nim (using REST API v8)
 #+author: Kaushal Modi
 
 -----
