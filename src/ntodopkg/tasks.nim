@@ -52,10 +52,7 @@ proc create(content, due: string, priority: Priority, inInbox: bool): string =
   ## Create a new task named NAME in "Inbox".
   ## https://developer.todoist.com/rest/v8/#create-a-new-task
   var
-    dataJson: JsonNode
-    projJson: JsonNode
     projName = "Inbox"
-  if inInbox:
     dataJson = %*
       {
         "content": content,
@@ -63,17 +60,11 @@ proc create(content, due: string, priority: Priority, inInbox: bool): string =
         "due_lang": defaultDueLang,
         "priority": priority
       }
-  else:
-    projJson = p.getJson(" where you want to create this task")
+  if (not inInbox):
+    let
+      projJson = p.getJson(" where you want to create this task")
     projName = projJson["name"].getStr()
-    dataJson = %*
-      {
-        "content": content,
-        "due_string": due,
-        "due_lang": defaultDueLang,
-        "priority": priority,
-        "project_id": projJson["id"].getInt()
-      }
+    dataJson["project_id"] = projJson["id"]
   # echo dataJson.pretty()
   jsonObj = getApiUrl(urlPart).req(HttpPost, $dataJson)
   doAssert jsonObj.isNil() == false

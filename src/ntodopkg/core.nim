@@ -28,7 +28,9 @@ proc getUuid*(): string =
 proc getClient*(): HttpClient =
   ## Create a new http client if one doesn't already exist.
   if isNone(client):
-    client = some(newHttpClient())
+    var c = newHttpClient()
+    c.headers = newHttpHeaders({ "Authorization" : "Bearer " & getToken() })
+    client = some(c)
   return get(client)
 
 proc getApiUrl*(cmd: string): string =
@@ -39,14 +41,10 @@ proc req*(url: string, mthd: HttpMethod, data = ""): JsonNode =
   ## Get JSON object returned from URL using MTHD HTTP method.
   doAssert mthd in {HttpGet, HttpPost, HttpDelete}
   try:
-    var
-      c = getClient()
-    if mthd in {HttpGet, HttpDelete}:
-      c.headers = newHttpHeaders({ "Authorization" : "Bearer " & getToken() })
-    elif mthd in {HttpPost}:
-      c.headers = newHttpHeaders({ "Content-Type": "application/json",
-                                   "X-Request-Id": getUuid(),
-                                   "Authorization": "Bearer " & getToken() })
+    let c = getClient()
+    if mthd in {HttpPost}:
+      c.headers.add("Content-Type", "application/json")
+      c.headers.add("X-Request-Id", getUuid())
     let
       resp = c.request(url, httpMethod = mthd, body = data)
       body = resp.body
