@@ -7,7 +7,7 @@ type
 const
   tokenFileName* = ".todoist-token"
   apiBaseUrl* = "https://beta.todoist.com/API/v8"
-  defaultPriority*: Priority = 1 ## Default priority when creating tasks
+  defaultPriority*: Priority = 4 ## Default priority when creating tasks
   defaultDueLang* = "en"         ## Default language to be used for parsing "due string" when creating tasks
 
 var

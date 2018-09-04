@@ -58,7 +58,7 @@ to work.*
       ntodo -t create
       # Enter the task name.
       # Enter the due date string (like "tomorrow", "today at 9pm", etc.)
-      # Enter a priority between 1 and 4; Just hitting Enter defaults to 1.
+      # Enter a priority between 1 and 4; just hitting Enter defaults to 4.
       # Enter "y" or hit Enter to default to creating the task in Inbox.
       #+end_example
     - [X] In user-specified project (No labels)
@@ -66,8 +66,8 @@ to work.*
       ntodo -t create
       # Enter the task name.
       # Enter the due date string (like "tomorrow", "today at 9pm", etc.)
-      # Enter a priority between 1 and 4; Just hitting Enter defaults to 1.
-      # Enter "n" to create the task in the to-be-selected project.
+      # Enter a priority between 1 and 4; just hitting Enter defaults to 4.
+      # Enter "n" to create a task in the to-be-selected project.
       # Enter the project index number at prompt, and hit Enter.
       #+end_example
     - [ ] In user-specified project, with specified one or more labels
