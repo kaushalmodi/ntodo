@@ -1,3 +1,5 @@
 /ntodo
 /.todoist-token
 *.html
+/src/ntodo
+libressl*
