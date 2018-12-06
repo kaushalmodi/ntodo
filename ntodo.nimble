@@ -9,4 +9,4 @@ bin           = @["ntodo"]
 
 # Dependencies
 
-requires "nim >= 0.18.1", "cligen"
+requires "nim >= 0.18.1", "cligen#head"

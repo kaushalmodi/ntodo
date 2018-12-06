@@ -31,13 +31,15 @@ proc main*(data = "", project = "", task = "") =
 
 when isMainModule:
   import cligen
-  # Use dispatchGen to do some initial setup for cligen, but don't run main, yet..
-  dispatchGen(main,
-              version = ("version", "0.1.0"))
-  if paramCount()==0:
-    quit(dispatch_main(@["--help"]))
-  else:
-    quit(dispatch_main(commandLineParams()))
+
+  # https://github.com/c-blake/cligen/issues/83#issuecomment-444951772
+  proc mergeParams(cmdNames: seq[string], cmdLine=commandLineParams()): seq[string] =
+    result = cmdLine
+    if cmdLine.len == 0:
+      result = @["--help"]
+
+  dispatch(main,
+           version = ("version", "0.1.0"))
 
 # https://gist.github.com/piotrklibert/b2ba0774244bb7368748a3b8b038c5f9
 # https://gitter.im/nim-lang/Nim?at=5b85b35260f9ee7aa4a50361
