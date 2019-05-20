@@ -1,6 +1,6 @@
 # Package
 
-version       = "0.1.0"
+version       = "0.1.1"
 author        = "Kaushal Modi"
 description   = "Todoist API"
 license       = "MIT"
@@ -9,4 +9,4 @@ bin           = @["ntodo"]
 
 # Dependencies
 
-requires "nim >= 0.18.1", "cligen#head"
+requires "nim >= 0.18.1", "cligen >= 0.9.28"

@@ -38,8 +38,9 @@ when isMainModule:
     if cmdLine.len == 0:
       result = @["--help"]
 
-  dispatch(main,
-           version = ("version", "0.1.0"))
+  # https://github.com/c-blake/cligen/blob/master/RELEASE-NOTES.md#version-0928
+  dispatch2(main,
+            version = ("version", "0.1.0"))
 
 # https://gist.github.com/piotrklibert/b2ba0774244bb7368748a3b8b038c5f9
 # https://gitter.im/nim-lang/Nim?at=5b85b35260f9ee7aa4a50361
