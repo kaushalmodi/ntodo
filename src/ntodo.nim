@@ -20,8 +20,8 @@ proc doStuff(data, projectAction, taskAction: string) =
     str = t.action(data, taskAction)
   echo str
 
-proc main*(data = "", project = "", task = "") =
-  ## Main proc.
+proc ntodo*(data = "", project = "", task = "") =
+  ## A CLI app to execute basic Todoist functions via its API.
   try:
     if (not isOneHot(@[project, task])):
       raise newException(UserError, "User needs to select only one of the sub-command switches: -p/--project, -t/--task.")
@@ -39,11 +39,21 @@ when isMainModule:
       result = @["--help"]
 
   const
-    versionString = staticExec("git describe --tags HEAD")
-  # https://github.com/c-blake/cligen/blob/master/RELEASE-NOTES.md#version-0928
-  clCfg.version = versionString
+    version = staticExec("git describe --tags HEAD")
+    nimbleData = staticRead("../ntodo.nimble")
+    uri = "https://github.com/kaushalmodi/ntodo"
+    # https://github.com/c-blake/cligen/issues/107
+    myUsage = "\nNAME\n  ntodo - ${doc}" &
+      "\nUSAGE\n  ${command} ${args}" &
+      "\n\nOPTIONS\n$options" &
+      "\nURI\n  " & uri &
+      "\n\nAUTHOR\n  " & nimbleData.fromNimble("author") &
+      "\n\nVERSION\n  " & version
 
-  dispatch(main)
+  # https://github.com/c-blake/cligen/blob/master/RELEASE-NOTES.md#version-0928
+  clCfg.version = version
+
+  dispatch(ntodo, usage=myUsage)
 
 # https://gist.github.com/piotrklibert/b2ba0774244bb7368748a3b8b038c5f9
 # https://gitter.im/nim-lang/Nim?at=5b85b35260f9ee7aa4a50361
