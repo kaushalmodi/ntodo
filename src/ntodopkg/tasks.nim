@@ -1,4 +1,4 @@
-import std/[strformat, strutils, json, httpclient]
+import std/[strformat, strutils, json, httpcore]
 import core
 import projects as p
 
