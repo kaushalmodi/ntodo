@@ -1,7 +1,7 @@
 # Todoist API REST v8
 # http://doist.github.io/todoist-api/rest/v8
 
-import os, strutils, strformat, sequtils, sugar
+import std/[os, strutils, strformat, sequtils, sugar]
 import ntodopkg/globals
 import ntodopkg/projects as p
 import ntodopkg/tasks as t
@@ -33,7 +33,7 @@ when isMainModule:
   import cligen
 
   # https://github.com/c-blake/cligen/issues/83#issuecomment-444951772
-  proc mergeParams(cmdNames: seq[string], cmdLine=commandLineParams()): seq[string] =
+  proc mergeParams(cmdNames: seq[string], cmdLine = commandLineParams()): seq[string] =
     result = cmdLine
     if cmdLine.len == 0:
       result = @["--help"]
@@ -53,7 +53,7 @@ when isMainModule:
   # https://github.com/c-blake/cligen/blob/master/RELEASE-NOTES.md#version-0928
   clCfg.version = version
 
-  dispatch(ntodo, usage=myUsage)
+  dispatch(ntodo, usage = myUsage)
 
 # https://gist.github.com/piotrklibert/b2ba0774244bb7368748a3b8b038c5f9
 # https://gitter.im/nim-lang/Nim?at=5b85b35260f9ee7aa4a50361

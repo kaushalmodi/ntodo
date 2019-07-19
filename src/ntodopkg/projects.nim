@@ -1,6 +1,5 @@
-import strformat, strutils, json, httpclient
-import typetraits
-import ./core
+import std/[strformat, strutils, json, httpclient]
+import core
 
 const
   urlPart = "projects"
@@ -93,25 +92,26 @@ proc delete(obj: JsonNode): string =
 
 proc action*(data, action: string): string =
   ## Project actions.
-  result = case action
-           of "list":
-             getAll()
-           of "get":
-             let id = getJson(" that you need to get")["id"].getInt()
-             get(id)
-           of "create":
-             if data == "":
-               raise newException(UserError, "New project name needs to be provided using the '-d' switch.")
-             create(data)
-           of "rename":
-             let
-               obj = getJson(" that you want to rename")
-               id = obj["id"].getInt()
-             stdout.write(fmt"Type the new name for the project at index {id}: ")
-             let
-               name = readLine(stdin).strip()
-             rename(obj, name)
-           of "delete":
-             delete(getJson(" that you need to DELETE"))
-           else:
-             getAll()
+  result =
+    case action
+    of "list":
+      getAll()
+    of "get":
+      let id = getJson(" that you need to get")["id"].getInt()
+      get(id)
+    of "create":
+      if data == "":
+        raise newException(UserError, "New project name needs to be provided using the '-d' switch.")
+      create(data)
+    of "rename":
+      let
+        obj = getJson(" that you want to rename")
+        id = obj["id"].getInt()
+      stdout.write(fmt"Type the new name for the project at index {id}: ")
+      let
+        name = readLine(stdin).strip()
+      rename(obj, name)
+    of "delete":
+      delete(getJson(" that you need to DELETE"))
+    else:
+      getAll()

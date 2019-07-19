@@ -1,5 +1,5 @@
-import httpclient, json, random, strutils, strformat, options
-import ./globals
+import std/[httpclient, json, random, strutils, strformat, options]
+import globals
 export globals
 
 var
@@ -29,7 +29,7 @@ proc getClient*(): HttpClient =
   ## Create a new http client if one doesn't already exist.
   if isNone(client):
     var c = newHttpClient()
-    c.headers = newHttpHeaders({ "Authorization" : "Bearer " & getToken() })
+    c.headers = newHttpHeaders({"Authorization": "Bearer " & getToken()})
     client = some(c)
   return get(client)
 
@@ -49,7 +49,7 @@ proc req*(url: string, mthd: HttpMethod, data = ""): JsonNode =
       resp = c.request(url, httpMethod = mthd, body = data)
       body = resp.body
       bodyJson = if body == "":
-                   "[]"         # empty Json
+                   "[]" # empty Json
                  else:
                    body
     bodyDebug = body
