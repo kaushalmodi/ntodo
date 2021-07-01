@@ -26,7 +26,7 @@ jobs:
       - name: Pull kaushalmodi's global config.nims
         run: nim pullConfig
       - name: Test Nimble Install
-        run: nimble install --depsOnly --accept
+        run: nimble install --accept
       # Thu Jul 01 12:27:51 EDT 2021 - kmodi
       # FIXME: No tests set up as of today.
       # - name: Run Tests
