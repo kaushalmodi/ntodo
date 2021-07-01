@@ -1,0 +1,33 @@
+name: RunTests
+
+on:
+  pull_request:
+    types:
+      - '*'
+  push:
+  schedule:
+    # Every week: https://crontab.guru/#0_0_*_*_0
+    - cron: '0 0 * * 0'
+
+jobs:
+  run_tests:
+    # runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        nim: ['devel', 'version-1-4']
+    steps:
+      - uses: actions/checkout@v2
+      - uses: alaviss/setup-nim@0.1.1
+        with:
+          path: 'nim'
+          version: ${{ matrix.nim }}
+      - name: Pull kaushalmodi's global config.nims
+        run: nim pullConfig
+      - name: Test Nimble Install
+        run: nimble install --depsOnly --accept
+      # Thu Jul 01 12:27:51 EDT 2021 - kmodi
+      # FIXME: No tests set up as of today.
+      # - name: Run Tests
+      #   run: nim test

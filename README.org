@@ -1,6 +1,8 @@
 #+title: Todoist CLI app written in Nim (using REST API v8)
 #+author: Kaushal Modi
 
+[[https://github.com/kaushalmodi/ntodo/actions/workflows/test.yml][https://github.com/kaushalmodi/ntodo/actions/workflows/test.yml/badge.svg]]
+
 -----
 
 *This project is in a really pre-alpha stage.*
